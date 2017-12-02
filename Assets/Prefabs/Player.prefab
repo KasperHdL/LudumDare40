@@ -20,13 +20,13 @@ GameObject:
   m_Component:
   - component: {fileID: 4883904110798806}
   - component: {fileID: 33225067476515258}
-  - component: {fileID: 65879296584089120}
   - component: {fileID: 23864236275618840}
   - component: {fileID: 114777845408576696}
   - component: {fileID: 54341643270966680}
+  - component: {fileID: 136081927104505388}
   m_Layer: 8
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -84,7 +84,7 @@ MeshFilter:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1055217410855962}
-  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!54 &54341643270966680
 Rigidbody:
   m_ObjectHideFlags: 1
@@ -100,18 +100,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 112
   m_CollisionDetection: 0
---- !u!65 &65879296584089120
-BoxCollider:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1055217410855962}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &114777845408576696
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -123,10 +111,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea2db928bbfd14d279e9557e92757015, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  instance: {fileID: 0}
   world: {fileID: 0}
   hasKey: 0
   movementForce: 1250
   airForce: 750
-  jumpForce: 500
-  onGroundCheckDistance: 0.52
+  jumpForce: 750
+  onGroundCheckDistance: 1.2
   jumpDelay: 0.5
+  freezeUntilHitGround: 0
+  body: {fileID: 0}
+--- !u!136 &136081927104505388
+CapsuleCollider:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1055217410855962}
+  m_Material: {fileID: 13400000, guid: ebbcf0dd82a8c4c5f98f60e626d93192, type: 2}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  m_Radius: 0.5
+  m_Height: 2
+  m_Direction: 1
+  m_Center: {x: 0, y: 0, z: 0}

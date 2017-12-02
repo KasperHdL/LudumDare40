@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Player : MonoBehaviour {
+    public Player instance;
     public World world;
 
     public bool hasKey = false;
@@ -22,6 +23,11 @@ public class Player : MonoBehaviour {
     public Rigidbody body;
 
     void Awake(){
+        if(instance != null){
+            Destroy(gameObject);
+            return;
+        }
+        instance = this;
         body = GetComponent<Rigidbody>();
     }
 
