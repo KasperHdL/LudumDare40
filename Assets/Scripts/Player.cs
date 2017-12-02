@@ -16,21 +16,27 @@ public class Player : MonoBehaviour {
     public float jumpDelay = 0.5f;
     private float nextJump = 0;
 
+    public bool freezeUntilHitGround = false;
 
 
-    private Rigidbody body;
+    public Rigidbody body;
 
-    void Start(){
+    void Awake(){
         body = GetComponent<Rigidbody>();
     }
 
 	
 	void Update () {
+        bool groundCheck = Physics.Raycast(transform.position, -Vector3.up, onGroundCheckDistance);
+        if(freezeUntilHitGround){
+            if(groundCheck) freezeUntilHitGround = false;
+            else return;
+        }
+
         bool jump = Input.GetKeyDown(KeyCode.Space);
         float x = Input.GetAxis("Horizontal");
         float y = Input.GetAxis("Vertical");
 
-        bool groundCheck = Physics.Raycast(transform.position, -Vector3.up, onGroundCheckDistance);
 
         //Movement
         Vector3 forward = Camera.main.transform.forward;
@@ -66,9 +72,9 @@ public class Player : MonoBehaviour {
     }
 
     public void OnCollisionEnter(Collision coll){
-        if(coll.collider.gameObject.tag.Equals("Lock")){
-            hasKey = false;
+        if(hasKey && coll.collider.gameObject.tag.Equals("Lock")){
             world.Generate();
+            hasKey = false;
         }
     }
 }
