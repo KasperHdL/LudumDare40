@@ -2,12 +2,23 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
+public enum Direction{
+    None, North, East, South, West, Diagonal
+}
+
 public class Pillar : MonoBehaviour {
-    public bool isWall; 
+    public Direction wallDirection;
+    public float randomWallColorAmount = 0.25f;
+
+    public Color color;
+    public float playerColorLerp = 0.75f;
 
     public Vector3 startSize;
     public float beatHeight = 2f;
     public float heightDecrease = .5f;
+
+    public int changeOnBeat;
 
     public float beatWallHeight = 10f;
     public float wallHeightDecrease = 5f;
@@ -24,30 +35,34 @@ public class Pillar : MonoBehaviour {
         EventHandler.Subscribe(GameEvent.Beat, Beat);
 	}
 
-    public void Init(bool isWall){
+    public void Init(int changeOnBeat, Direction direction){
         startSize = transform.localScale;
-        this.isWall = isWall;
-        ColorPillar();
+        transform.localScale = startSize + Vector3.up * (wallDirection != Direction.None? beatWallHeight : beatHeight);
+        this.changeOnBeat = changeOnBeat;
+
+        wallDirection = direction;
+
+        NewColor();
     }
 	
 	void Update () {
-        transform.localScale = transform.localScale - Vector3.up * (isWall ? wallHeightDecrease : heightDecrease) * Time.deltaTime;
-		
+        if(wallDirection != Direction.None){
+            transform.localScale = transform.localScale - Vector3.up * wallHeightDecrease * Time.deltaTime;
+        }
 	}
 
     public void Beat(GameEventArgs eventArgs){
-        transform.localScale = startSize + Vector3.up * (isWall ? beatWallHeight : beatHeight);
-
         BeatArgs args = eventArgs as BeatArgs;
-        if(args.totalBeats % 6 == 0)
-            ColorPillar();
+        transform.localScale = startSize + Vector3.up * (wallDirection != Direction.None? beatWallHeight : beatHeight);
+
+        NewColor();
     }
 
     public void OnCollisionEnter(Collision collision){
         if(collision.gameObject.tag.Equals("Player")){
             isTouchingPlayer = true;
-            meshRenderer.material.SetColor("_Color", Color.white);
-            meshRenderer.material.SetColor("_EmissionColor", Color.white);
+            meshRenderer.material.SetColor("_Color", Color.Lerp(color, Color.white, playerColorLerp));
+            meshRenderer.material.SetColor("_EmissionColor", Color.Lerp(color, Color.white, playerColorLerp));
         }
 
     }
@@ -55,17 +70,30 @@ public class Pillar : MonoBehaviour {
     public void OnCollisionExit(Collision collision){
         if(collision.gameObject.tag.Equals("Player")){
             isTouchingPlayer = false;
-            ColorPillar();
+
+            meshRenderer.material.SetColor("_Color", color);
+            meshRenderer.material.SetColor("_EmissionColor", color);
         }
     }
 
-    public void ColorPillar(){
+    public void NewColor(){
         if(isTouchingPlayer) return;
 
-        Color c = Game.instance.colors[Random.Range(0, Game.instance.colors.Length)];
+        if(wallDirection == Direction.None)
+            color = Game.instance.colors[Random.Range(0, Game.instance.colors.Length)];
+        else if(wallDirection == Direction.Diagonal){
+            color = Game.instance.colors[Game.instance.colors.Length -1];
+        }
+        else{
+            color = Game.instance.colors[(int)wallDirection-1];
 
-        meshRenderer.material.SetColor("_Color", c);
-        meshRenderer.material.SetColor("_EmissionColor", c);
+            color.r += Random.Range(-randomWallColorAmount,randomWallColorAmount);
+            color.g += Random.Range(-randomWallColorAmount,randomWallColorAmount);
+            color.b += Random.Range(-randomWallColorAmount,randomWallColorAmount);
+        }
+
+        meshRenderer.material.SetColor("_Color", color);
+        meshRenderer.material.SetColor("_EmissionColor", color);
     }
 
 }

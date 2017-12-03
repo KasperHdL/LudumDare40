@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1b90588c5f1f947778364fec12807089, type: 3}
+  m_Name: 160
+  m_EditorClassIdentifier: 
+  bpm: 160
+  combined: {fileID: 8300000, guid: 557c27388db8f4571927d5000c507075, type: 3}
+  bass: {fileID: 8300000, guid: 907eb20d8573340fc82306ebdd9fd136, type: 3}
+  lead: {fileID: 8300000, guid: f17cac7cecb8e4d04b9fb0b113b01e27, type: 3}
+  drums: {fileID: 8300000, guid: 53b980dd61de64bfe84fb42e31835ab8, type: 3}
+  kicks: {fileID: 8300000, guid: 9a13a4e65cd2d4c9a9366e6a14b44ad1, type: 3}
+  snares: {fileID: 8300000, guid: 1261a8b8e5c4c4033a958876ebf48617, type: 3}
+  toms: {fileID: 8300000, guid: 34f16a545185d40bcabc5ab079443877, type: 3}

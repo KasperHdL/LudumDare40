@@ -24,6 +24,7 @@ public class EventHandler {
 		}
 	}
 
+    public static void TriggerEvent(GameEvent type){TriggerEvent(type, null);}
 	public static void TriggerEvent(GameEvent type, GameEventArgs args)
 	{
 		if(eventList[(int) type] != null){

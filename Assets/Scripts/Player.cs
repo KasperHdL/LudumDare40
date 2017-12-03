@@ -19,6 +19,7 @@ public class Player : MonoBehaviour {
 
     public bool freezeUntilHitGround = false;
 
+    public Vector3 keyPosition;
 
     public Rigidbody body;
 
@@ -39,7 +40,7 @@ public class Player : MonoBehaviour {
             else return;
         }
 
-        bool jump = Input.GetKeyDown(KeyCode.Space);
+        bool jump = Input.GetKey(KeyCode.Space);
         float x = Input.GetAxis("Horizontal");
         float y = Input.GetAxis("Vertical");
 
@@ -63,7 +64,7 @@ public class Player : MonoBehaviour {
         //Jump
         if(jump && nextJump < Time.time && groundCheck){
 
-            force = Vector3.up * jumpForce * Time.deltaTime;
+            force = Vector3.up * jumpForce;
             body.AddForce(force, ForceMode.Impulse);
             nextJump = Time.time + jumpDelay;
         }
@@ -73,7 +74,9 @@ public class Player : MonoBehaviour {
         if(coll.gameObject.tag.Equals("Key")){
             hasKey = true;
             coll.gameObject.transform.SetParent(transform);
-            coll.gameObject.transform.localPosition = Vector3.up;
+            coll.gameObject.transform.localPosition = keyPosition;
+
+            EventHandler.TriggerEvent(GameEvent.PlayerGotKey);
         }
     }
 

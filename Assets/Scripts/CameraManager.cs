@@ -22,7 +22,7 @@ public class CameraManager : MonoBehaviour {
         Vector3 spawn = Vector3.one;
         spawn.y = 0;
         spawn = spawn.normalized * worldSize;
-        spawn.y = 25;
+        spawn.y = 10;
 
         positions.Add(spawn);
 
@@ -45,7 +45,7 @@ public class CameraManager : MonoBehaviour {
 
     public void Cut(GameEventArgs eventArgs){
         BeatArgs args = eventArgs as BeatArgs;
-        if(args.beat == 0){
+        if(args.totalBeats % 8 == 0){
             camera.transform.position = positions[index];
 
             index++;

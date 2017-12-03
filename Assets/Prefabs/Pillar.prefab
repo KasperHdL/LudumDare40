@@ -107,9 +107,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3fad239def9e4dd884a4d69e7db09c9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isWall: 0
+  wallDirection: 0
+  randomWallColorAmount: 0.2
+  color: {r: 0, g: 0, b: 0, a: 0}
+  playerColorLerp: 0.75
   startSize: {x: 0, y: 0, z: 0}
   beatHeight: 0
   heightDecrease: 0
+  changeOnBeat: 0
   beatWallHeight: 10
   wallHeightDecrease: 5
+  isTouchingPlayer: 0
+  meshRenderer: {fileID: 0}

@@ -8,6 +8,8 @@ public class Game : MonoBehaviour {
 
     public Color[] colors;
 
+    public Color[] wallColors;
+
     void Awake(){
         if(instance != null){
             Debug.Log("Multiple Game Instances");
