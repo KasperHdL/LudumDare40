@@ -17,7 +17,7 @@ public class MenuHandler : MonoBehaviour {
         }
     }
 
-    void FixedUpdate(){
+    void Update(){
         if(Input.GetKeyDown(KeyCode.Escape)){
             canvas.SetActive(!canvas.activeSelf);
             pauseObject.SetActive(canvas.activeSelf);

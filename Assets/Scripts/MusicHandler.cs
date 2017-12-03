@@ -80,7 +80,6 @@ public class MusicHandler : MonoBehaviour {
 
             if((beat+1) % CameraManager.instance.changeCameraOnBeat == 0){
                 sources[sources.Length - 1].PlayScheduled(nextBeat);
-                Debug.Log("playing next beat");
             }
 
             beatCounter++;
@@ -136,7 +135,7 @@ public class MusicHandler : MonoBehaviour {
         }
     }
 
-    IEnumerator FadeGroupTo(string group, float endValue, float endTime){
+    public IEnumerator FadeGroupTo(string group, float endValue, float endTime){
         float startValue;
         mixer.GetFloat(group, out startValue);
 
