@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class World : MonoBehaviour {
-    public int levelIndex = 0;
     public Player player;
     public CameraManager cameraManager;
 
@@ -26,7 +25,7 @@ public class World : MonoBehaviour {
 
     public void Start(){
         Generate();
-        cameraManager.SpawnCamera((size - 2) * blockSize);
+        cameraManager.SpawnCamera();
     }
 
 	public void Generate () {
@@ -76,14 +75,13 @@ public class World : MonoBehaviour {
         keyObject.transform.SetParent(null);
         spawn = RandomSpawn();
         keyObject.transform.position = spawn + Vector3.up * keyObject.transform.localScale.y * 2;
+        keyObject.GetComponent<Key>().Init();
 
 
         spawn = RandomSpawn();
         lockObject.transform.position = spawn + Vector3.up * lockObject.transform.localScale.y;
 
-        //cameraManager.SpawnCamera(size * blockSize);
-
-        levelIndex++;
+        cameraManager.SpawnCamera();
 	}
     
     public void SpawnPillar(int index, Vector3 pos, float h, Direction direction = Direction.None){

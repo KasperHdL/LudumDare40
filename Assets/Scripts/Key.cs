@@ -17,11 +17,17 @@ public class Key : MonoBehaviour {
     public float freeCirclingSpeed;
     public float gotCirclingSpeed;
 
+    private ReflectionProbe probe;
+
 	void Start () {
         EventHandler.Subscribe(GameEvent.Beat, Beat);
         EventHandler.Subscribe(GameEvent.PlayerGotKey, GotKey);
         startPos = transform.localPosition;
+        probe = GetComponent<ReflectionProbe>();
 	}
+    public void Init(){
+        startPos = transform.localPosition;
+    }
 	
 	void Update () {
         float t = Time.time * (onPlayer ? gotCirclingSpeed : freeCirclingSpeed);
@@ -39,6 +45,9 @@ public class Key : MonoBehaviour {
         transform.localPosition = circle + hoverPoint;
 		
 	}
+    void LateUpdate(){
+        probe.RenderProbe();
+    }
 
     void GotKey(GameEventArgs eventArgs){
         onPlayer = true;

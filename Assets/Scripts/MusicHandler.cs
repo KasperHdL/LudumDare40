@@ -6,9 +6,9 @@ using UnityEngine.Audio;
 public class MusicHandler : MonoBehaviour {
     public int beatCounter = 0;
 
-    public float beatDelay = 2.67f;
+    public double beatDelay = 2.67f;
 
-    private float nextBeat = 0;
+    private double nextBeat = 0;
     private int beat = 0;
 
     public Song[] songs;
@@ -31,6 +31,7 @@ public class MusicHandler : MonoBehaviour {
     public int lastVariationIndex;
 
 
+    public UnityEngine.UI.Slider slider;
 
     void Start()
     {
@@ -38,11 +39,12 @@ public class MusicHandler : MonoBehaviour {
         SetupAudioSources();
         
         ApplyNext();
+        VolumeSlider(slider.value);
     }
 
 
     void Update(){
-        if(nextBeat < Time.time){
+        if(nextBeat < AudioSettings.dspTime){
             nextBeat += beatDelay;
 
             beat++;
@@ -51,24 +53,34 @@ public class MusicHandler : MonoBehaviour {
                 if(goToNextBpm){
                     ApplyNext();
                     goToNextBpm = false;
+                    sources[sources.Length - 1].Play();
                 }
             }
 
             if(beat == 7){
+                float endVolume = 0;
                 if(!isVariating){
                     isVariating = true;
                     variatingGroupIndex = lastVariationIndex;
                     while(variatingGroupIndex == lastVariationIndex){
                         variatingGroupIndex = Random.Range(0, variationGroups.Length);
                     }
+                    endVolume = -80;
 
-                    StartCoroutine(FadeGroupTo(variationGroups[variatingGroupIndex], -80, nextBeat + beatDelay * delayMultiplier[variatingGroupIndex]));
                     lastVariationIndex = variatingGroupIndex;
 
                 }else{
                     isVariating = false;
-                    StartCoroutine(FadeGroupTo(variationGroups[variatingGroupIndex], 0, nextBeat + beatDelay * delayMultiplier[variatingGroupIndex]));
+                    endVolume = 0;
                 }
+
+                float offset = (float)((nextBeat - beatDelay) - AudioSettings.dspTime);
+                StartCoroutine(FadeGroupTo(variationGroups[variatingGroupIndex], endVolume, (float)(Time.time - offset + beatDelay * delayMultiplier[variatingGroupIndex])));
+            }
+
+            if((beat+1) % CameraManager.instance.changeCameraOnBeat == 0){
+                sources[sources.Length - 1].PlayScheduled(nextBeat);
+                Debug.Log("playing next beat");
             }
 
             beatCounter++;
@@ -93,7 +105,7 @@ public class MusicHandler : MonoBehaviour {
         }
 
         beatDelay = 1/(songs[songIndex].bpm / 60);
-        nextBeat = Time.time + beatDelay;
+        nextBeat = AudioSettings.dspTime + beatDelay;
 
         songs[songIndex].ApplyTo(sources);
 
@@ -102,13 +114,13 @@ public class MusicHandler : MonoBehaviour {
 
     public void Play(){PlayDelayed(0);}
     public void PlayDelayed(float delay){
-        for(int i = 0; i < sources.Length; i++){
+        for(int i = 0; i < sources.Length-1; i++){
             sources[i].PlayDelayed(delay);
         }
     }
 
     public void Stop(){
-        for(int i = 0; i < sources.Length; i++){
+        for(int i = 0; i < sources.Length-1; i++){
             sources[i].Stop();
         }
     }
@@ -116,7 +128,10 @@ public class MusicHandler : MonoBehaviour {
     void SetupAudioSources(){
         for(int i = 0; i < sources.Length; i++){
             sources[i].playOnAwake = false;
-            sources[i].loop = true;
+
+            if(i != sources.Length - 1)
+                sources[i].loop = true;
+
             sources[i].outputAudioMixerGroup = mixerGroup[i];
         }
     }
@@ -135,12 +150,12 @@ public class MusicHandler : MonoBehaviour {
         float tt = 0;
         while(endTime > Time.time){
             t = (Time.time - startTime) / duration;
+
             if(onIn){
                 tt = fadeInCurve.Evaluate(t);
             }else{
                 tt = fadeOutCurve.Evaluate(t);
             }
-            Debug.Log(tt);
 
             float v = Mathf.Lerp(startValue, endValue, tt);
             mixer.SetFloat(group, v);
@@ -149,6 +164,10 @@ public class MusicHandler : MonoBehaviour {
 
         mixer.SetFloat(group, endValue);
 
+    }
+
+    public void VolumeSlider(float volume){
+        mixer.SetFloat("Volume", (fadeInCurve.Evaluate(volume) - 1) * 80f);
     }
 
 }

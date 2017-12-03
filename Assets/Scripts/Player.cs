@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Player : MonoBehaviour {
-    public Player instance;
-    public World world;
+    public static Player instance;
 
+    public bool canControl = true;
     public bool hasKey = false;
 
     public float movementForce;
@@ -34,6 +34,8 @@ public class Player : MonoBehaviour {
 
 	
 	void Update () {
+        if(!canControl) return;
+
         bool groundCheck = Physics.Raycast(transform.position, -Vector3.up, onGroundCheckDistance);
         if(freezeUntilHitGround){
             if(groundCheck) freezeUntilHitGround = false;
@@ -82,7 +84,7 @@ public class Player : MonoBehaviour {
 
     public void OnCollisionEnter(Collision coll){
         if(hasKey && coll.collider.gameObject.tag.Equals("Lock")){
-            world.Generate();
+            Game.instance.FinishedLevel();
             hasKey = false;
         }
     }

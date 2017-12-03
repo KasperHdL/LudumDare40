@@ -14,7 +14,7 @@ MonoBehaviour:
   bpm: 145
   combined: {fileID: 8300000, guid: ae9a2cc542b9a4bfbb450ca4ac90620e, type: 3}
   bass: {fileID: 8300000, guid: 282606b08616f41e59f5f49af049edb5, type: 3}
-  lead: {fileID: 8300000, guid: 83952e72bc0104c38a0c0345c430d674, type: 3}
+  lead: {fileID: 8300000, guid: bb075d7e14da74367a6514d759d865a3, type: 3}
   drums: {fileID: 8300000, guid: 6f3111da9839c47bfa6cfa0c6d3105fb, type: 3}
   kicks: {fileID: 8300000, guid: e02d4a105b12c449295570083abadee3, type: 3}
   snares: {fileID: 8300000, guid: d5e9fcab3d61a46c790e533cca868f66, type: 3}
