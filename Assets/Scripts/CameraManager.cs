@@ -29,11 +29,9 @@ public class CameraManager : MonoBehaviour {
 	
     public void Update(){
         Vector3 ppos = player.transform.position;
-        Vector3 kpos = world.keyObject.GetComponent<Key>().startPos;
-        Vector3 lpos = world.lockObject.transform.position;
+//        Vector3 kpos = world.keyObject.GetComponent<Key>().startPos;
 
-        Vector3 sum = ppos + ppos + ppos + kpos + lpos;
-        sum /= 5;
+        Vector3 sum = ppos;
 
         camera.transform.LookAt(sum);
     }
@@ -125,7 +123,7 @@ public class CameraManager : MonoBehaviour {
 
     public void Cut(GameEventArgs eventArgs){
         BeatArgs args = eventArgs as BeatArgs;
-        if(args.totalBeats % changeCameraOnBeat == 0){
+        if(!Game.instance.transitioning && args.totalBeats % changeCameraOnBeat == 0){
             NextCamera();
         }
     }

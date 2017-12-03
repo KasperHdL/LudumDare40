@@ -1,20 +1,30 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.PostProcessing;
 
 public class Game : MonoBehaviour {
     public static Game instance;
 
+    public Text scoreText;
+    public Text highScoreText;
+
+    public int score;
+    public int highscore;
+
     [Header("Variables")]
     public bool isRunning = false;
     public int levelIndex = 0;
+    public int numRequiredKeys = 1;
     public Color[] colors;
 
     [Header("References")]
     public World world;
     public CameraManager camera;
     public MusicHandler music;
+
+    public bool transitioning = false;
 
     public PostProcessingProfile cameraProfile;
     public DepthOfFieldModel.Settings DOFmodel;
@@ -41,10 +51,48 @@ public class Game : MonoBehaviour {
         cameraProfile.depthOfField.settings = DOFmodel;
     }
 
+    public void Start(){
+        score = 0;
+        EventHandler.Subscribe(GameEvent.PlayerGotKey, PlayerGotKey);
+
+        highscore = PlayerPrefs.GetInt("CameraCut_Highscore", 0);
+
+        scoreText.text = "Score: " + score + " / " + highscore;
+    }
+
+
+    public void PlayerGotKey(GameEventArgs eventArgs){
+        score++;
+        if(highscore < score){
+            PlayerPrefs.SetInt("CameraCut_Highscore", score);
+            highscore = score;
+        }
+
+        scoreText.text = "Score: " + score + " / " + highscore;
+
+        if(Player.instance.numKeys == numRequiredKeys){
+            transitioning = true;
+            levelIndex++;
+
+            if(levelIndex % 3 == 0)
+                numRequiredKeys++;
+
+            world.Generate();
+            EventHandler.TriggerEvent(GameEvent.StartFinish);
+            StartCoroutine(DelayFinish(2f));
+        }
+    }
+
+    private IEnumerator DelayFinish(float duration){
+        yield return new WaitForSeconds(duration);
+        FinishedLevel();
+    }
 
     public void FinishedLevel(){
-        world.Generate();
-        levelIndex++;
+        EventHandler.TriggerEvent(GameEvent.FinishedLevel);
+
+        Player.instance.numKeys = 0;
+
 
         if(levelIndex == 5){
             music.NextBpm();
@@ -61,6 +109,8 @@ public class Game : MonoBehaviour {
         if(levelIndex == 30){
             camera.changeCameraOnBeat = 1;
         }
+
+        transitioning = false;
     }
 
     public void Pause(){

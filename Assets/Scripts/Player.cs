@@ -6,7 +6,11 @@ public class Player : MonoBehaviour {
     public static Player instance;
 
     public bool canControl = true;
-    public bool hasKey = false;
+    public bool finishing = false;
+    public Vector3 finishPos;
+    public AnimationCurve finishCurve;
+
+    public int numKeys = 0;
 
     public float movementForce;
     public float airForce;
@@ -32,9 +36,14 @@ public class Player : MonoBehaviour {
         body = GetComponent<Rigidbody>();
     }
 
+    void Start(){
+        EventHandler.Subscribe(GameEvent.FinishedLevel, FinishedLevel);
+        EventHandler.Subscribe(GameEvent.StartFinish, StartFinish);
+    }
+
 	
 	void Update () {
-        if(!canControl) return;
+        if(!canControl || finishing) return;
 
         bool groundCheck = Physics.Raycast(transform.position, -Vector3.up, onGroundCheckDistance);
         if(freezeUntilHitGround){
@@ -72,20 +81,45 @@ public class Player : MonoBehaviour {
         }
 	}
 
-    public void OnTriggerEnter(Collider coll){
-        if(coll.gameObject.tag.Equals("Key")){
-            hasKey = true;
-            coll.gameObject.transform.SetParent(transform);
-            coll.gameObject.transform.localPosition = keyPosition;
 
-            EventHandler.TriggerEvent(GameEvent.PlayerGotKey);
-        }
+    public void StartFinish(GameEventArgs eventArgs){
+        finishing = true;
+
+        StartCoroutine(LerpToFinish(1f));
+
+        freezeUntilHitGround = true;
+
+        body.velocity = Vector3.zero;
+        body.useGravity = false;
+
     }
 
-    public void OnCollisionEnter(Collision coll){
-        if(hasKey && coll.collider.gameObject.tag.Equals("Lock")){
-            Game.instance.FinishedLevel();
-            hasKey = false;
+
+
+    public void FinishedLevel(GameEventArgs eventArgs){
+        body.isKinematic = false;
+        body.useGravity = true;
+    }
+
+    IEnumerator LerpToFinish(float duration){
+        float start = Time.time;
+        float end = start + duration;
+
+        Vector3 startPos = transform.position;
+
+        float t = 0;
+        float tt = 0;
+
+        while(end > Time.time){
+            t = (Time.time - start) / duration;
+            tt = finishCurve.Evaluate(t);
+
+            transform.position = Vector3.Lerp(startPos, finishPos, tt);
+
+            yield return null;
         }
+
+        transform.position = finishPos;
+        finishing = false;
     }
 }

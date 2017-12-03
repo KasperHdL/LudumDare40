@@ -11,6 +11,8 @@ public class Pillar : MonoBehaviour {
     public Direction wallDirection;
     public float randomWallColorAmount = 0.25f;
 
+    public Vector3 endSize;
+
     public Color color;
     public float playerColorLerp = 0.75f;
 
@@ -35,14 +37,12 @@ public class Pillar : MonoBehaviour {
         EventHandler.Subscribe(GameEvent.Beat, Beat);
 	}
 
-    public void Init(int changeOnBeat, Direction direction){
-        startSize = transform.localScale;
-        transform.localScale = startSize + Vector3.up * (wallDirection != Direction.None? beatWallHeight : beatHeight);
+    public void Init(int changeOnBeat){
         this.changeOnBeat = changeOnBeat;
+    }
 
-        wallDirection = direction;
-
-        NewColor();
+    public void SetNext(Vector3 pos, Vector3 size){
+        StartCoroutine(Lerp(pos, size, 1f));
     }
 	
 	void Update () {
@@ -55,7 +55,8 @@ public class Pillar : MonoBehaviour {
         BeatArgs args = eventArgs as BeatArgs;
         transform.localScale = startSize + Vector3.up * (wallDirection != Direction.None? beatWallHeight : beatHeight);
 
-        NewColor();
+        if(args.beat % 2 == 1)
+            NewColor();
     }
 
     public void OnCollisionEnter(Collision collision){
@@ -94,6 +95,52 @@ public class Pillar : MonoBehaviour {
 
         meshRenderer.material.SetColor("_Color", color);
         meshRenderer.material.SetColor("_EmissionColor", color);
+    }
+
+    IEnumerator Lerp(Vector3 pos, Vector3 size, float duration){
+        float start = Time.time;
+        float end = start + duration;
+
+        this.startSize = size;
+        size += Vector3.up * (wallDirection != Direction.None? beatWallHeight : beatHeight);
+
+        Vector3 startPos = transform.position;
+        Vector3 startSize = transform.localScale;
+
+        Vector3 p = startPos;
+        p.y = 0;
+        Vector3 s = startSize;
+        s.y = 1;
+
+        float t = 0;
+        while(end > Time.time){
+            t = (Time.time - start) / duration;
+
+            transform.position = Vector3.Lerp(startPos, p, t);
+            transform.localScale = Vector3.Lerp(startSize, s, t);
+
+            yield return null;
+        }
+
+        start = Time.time;
+        end = start + duration;
+
+
+        t = 0;
+        while(end > Time.time){
+            t = (Time.time - start) / duration;
+
+            transform.position = Vector3.Lerp(p, pos, t);
+            transform.localScale = Vector3.Lerp(s, size, t);
+
+            yield return null;
+        }
+
+        transform.position = pos;
+        transform.localScale = size;
+
+        Init(0);
+
     }
 
 }

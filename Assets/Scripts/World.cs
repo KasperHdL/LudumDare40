@@ -5,30 +5,46 @@ using UnityEngine;
 public class World : MonoBehaviour {
     public Player player;
     public CameraManager cameraManager;
+    public Circle circle;
 
-    public GameObject keyObject;
-    public GameObject lockObject;
+    public List<GameObject> keyObject;
 
     public List<GameObject> pillars;
 
     public GameObject pillarPrefab;
 
     public GameObject keyPrefab;
-    public GameObject lockPrefab;
+    
+    public Vector3 keySpawnPos;
 
     public int size = 5;
     public float blockSize = 2.5f;
     public float blockHeight = 1;
     public int randomHeight = 5;
 
+    private List<Vector2> occupied;
+
     Vector3 offset;
 
     public void Start(){
+        occupied = new List<Vector2>();
+        occupied.Add(new Vector2(2,2));
+
+        keyObject = new List<GameObject>();
+
         Generate();
+
+
+        Vector3 spawn = RandomSpawn();
+        player.transform.position = player.finishPos;
+
+
         cameraManager.SpawnCamera();
     }
 
 	public void Generate () {
+        occupied.Clear();
+        occupied.Add(new Vector2(2,2));
 
         offset = new Vector3(-size/2, 0, -size/2);
         offset *= blockSize;
@@ -60,26 +76,23 @@ public class World : MonoBehaviour {
         }
 
 
-        if(keyObject == null)
-            keyObject = Instantiate(keyPrefab);
-
-        if(lockObject == null)
-            lockObject = Instantiate(lockPrefab);
-
-        Vector3 spawn = RandomSpawn();
-
-        player.transform.position = spawn + Vector3.up * 4;
-        player.body.velocity = Vector3.zero;
-        player.freezeUntilHitGround = true;
-
-        keyObject.transform.SetParent(null);
-        spawn = RandomSpawn();
-        keyObject.transform.position = spawn + Vector3.up * keyObject.transform.localScale.y * 2;
-        keyObject.GetComponent<Key>().Init();
+        for(int i = keyObject.Count; i < Game.instance.numRequiredKeys; i++){
+            keyObject.Add(Instantiate(keyPrefab, keySpawnPos, Quaternion.identity) as GameObject);
+            keyObject[i].GetComponent<Key>().circle = circle;
+        }
 
 
-        spawn = RandomSpawn();
-        lockObject.transform.position = spawn + Vector3.up * lockObject.transform.localScale.y;
+        for(int i = 0; i < Game.instance.numRequiredKeys; i++){
+            Vector3 spawn = RandomSpawn();
+            Vector3 pos = spawn + Vector3.up * keyObject[i].transform.localScale.y * 4;
+
+            if(i >= keyObject.Count){
+                keyObject.Add(Instantiate(keyPrefab, spawn, Quaternion.identity) as GameObject);
+                keyObject[i].GetComponent<Key>().circle = circle;
+            }
+
+            keyObject[i].GetComponent<Key>().Init(pos);
+        }
 
         cameraManager.SpawnCamera();
 	}
@@ -90,31 +103,45 @@ public class World : MonoBehaviour {
 
         if(pillars.Count <= index){
             GameObject g = Instantiate(pillarPrefab, pos, Quaternion.identity);
+            g.transform.localScale = new Vector3(blockSize, 0.1f, blockSize);
+
             p = g.GetComponent<Pillar>();
+            p.transform.SetParent(transform);
             pillars.Add(g);
         }else{
             p = pillars[index].GetComponent<Pillar>();
-            p.transform.position = pos;
         }
 
-        p.transform.localScale = new Vector3(blockSize,h,blockSize);
-        p.transform.SetParent(transform);
-        p.Init(0, direction);
-             
+        p.wallDirection = direction;
+        p.SetNext(pos, new Vector3(blockSize, h, blockSize));
     }
 
     public Vector3 RandomSpawn(){
-        Vector3 spawn = new Vector3(
-                Random.Range(0,size),
-                0,
-                Random.Range(0,size)
-            );
+        Vector3 spawn;
+
+        while(true){
+            spawn = new Vector3(
+                    Random.Range(0,size),
+                    0,
+                    Random.Range(0,size)
+                );
+
+            bool found = false;
+            for(int i = 0; i < occupied.Count; i++){
+                if(spawn.x == occupied[i].x && spawn.z == occupied[i].y){
+                    found = true;
+                    break;
+                }
+            }
+            if(!found) break;
+        }
+        occupied.Add(new Vector2(spawn.x, spawn.z));
 
         int index = (int)(spawn.z * size + spawn.x);
 
         spawn.z *= blockSize;
         spawn.x *= blockSize;
-        spawn.y = pillars[index].transform.localScale.y;
+        spawn.y = pillars[index].GetComponent<Pillar>().startSize.y / 2;
 
 
         return spawn + offset;
