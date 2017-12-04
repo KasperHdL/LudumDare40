@@ -74,7 +74,7 @@ public class Key : MonoBehaviour {
     }
 
     public void OnTriggerEnter(Collider coll){
-        if(!pickedup && coll.gameObject.tag.Equals("Player")){
+        if(!Game.instance.transitioning && !pickedup && coll.gameObject.tag.Equals("Player")){
             pickedup = true;
 
             Player.instance.numKeys++;
